@@ -1,8 +1,8 @@
 using System;
 using System.Reflection;
-using StayInTarkov;
 using System.Linq;
 using EFT;
+using StayInTarkov;
 
 namespace AmandsHitmarker
 {

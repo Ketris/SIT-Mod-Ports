@@ -3,18 +3,20 @@ using BepInEx.Configuration;
 using EFT;
 using EFT.InventoryLogic;
 using System.Reflection;
-using StayInTarkov;
 using UnityEngine;
 using TMPro;
 using HarmonyLib;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System;
+using EFT.UI;
+using System.Linq;
+using StayInTarkov;
 using StayInTarkov.Coop;
 
 namespace AmandsHitmarker
 {
-    [BepInPlugin("com.Amanda.Hitmarker", "Hitmarker", "2.5.4")]
+    [BepInPlugin("com.Amanda.Hitmarker", "Hitmarker", "2.6.0")]
     public class AHitmarkerPlugin : BaseUnityPlugin
     {
         public static GameObject Hook;
@@ -144,6 +146,12 @@ namespace AmandsHitmarker
         public static ConfigEntry<float> DamageFontOutline { get; set; }
         public static ConfigEntry<Vector2> DamageRectPosition { get; set; }
         public static ConfigEntry<Vector2> DamageRectPivot { get; set; }
+
+        public static ConfigEntry<bool> EnableDamageIndicator { get; set; }
+        public static ConfigEntry<Color> DamageIndicatorColor { get; set; }
+        public static ConfigEntry<float> DamageIndicatorSize { get; set; }
+        public static ConfigEntry<float> DamageIndicatorOffset { get; set; }
+
         private void Awake()
         {
             Debug.LogError("AmandsHitmarker Awake()");
@@ -279,12 +287,17 @@ namespace AmandsHitmarker
             DamageRectPosition = Config.Bind<Vector2>("AmandsHitmarker DamageNumber", "RectPosition", new Vector2(0f, -100f), new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 130 }));
             DamageRectPivot = Config.Bind<Vector2>("AmandsHitmarker DamageNumber", "RectPivot", new Vector2(0.5f, 0.5f), new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 120, IsAdvanced = true }));
 
+            EnableDamageIndicator = Config.Bind<bool>("AmandsDamageIndicator", "EnableDamageIndicator", false, new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 110 }));
+            DamageIndicatorColor = Config.Bind<Color>("AmandsDamageIndicator", "DamageIndicatorColor", new Color(1f, 0f, 0.0f, 1f), new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 100 }));
+            DamageIndicatorSize = Config.Bind<float>("AmandsDamageIndicator", "DamageIndicatorSize", 0.7f, new ConfigDescription("", new AcceptableValueRange<float>(0.1f, 2.0f), new ConfigurationManagerAttributes { Order = 90, IsAdvanced = true }));
+            DamageIndicatorOffset = Config.Bind<float>("AmandsDamageIndicator", "DamageIndicatorOffset", 350f, new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 80, IsAdvanced = true }));
+
             new AmandsDamagePatch().Enable();
             new AmandsArmorDamagePatch().Enable();
             new AmandsProceedArmorDamagePatch().Enable();
             new AmandsKillPatch().Enable();
-            new AmandsCoopPlayerPatchHitmarker().Enable();
-            new AmandsLocalPlayerPatchHitmarker().Enable();
+            new AmandsCoopPlayerPatch().Enable();
+            new AmandsLocalPlayerPatch().Enable();
             new AmandsMenuUIPatch().Enable();
             new AmandsBattleUIScreenPatch().Enable();
             new AmandsSSAAPatch().Enable();
@@ -398,7 +411,7 @@ namespace AmandsHitmarker
         }
     }
 
-    public class AmandsCoopPlayerPatchHitmarker : ModulePatch
+    public class AmandsCoopPlayerPatch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()
         {
@@ -429,7 +442,7 @@ namespace AmandsHitmarker
         }
     }
 
-    public class AmandsLocalPlayerPatchHitmarker : ModulePatch
+    public class AmandsLocalPlayerPatch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()
         {
@@ -450,7 +463,6 @@ namespace AmandsHitmarker
             }
         }
     }
-
     public class AmandsMenuUIPatch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()
@@ -471,7 +483,7 @@ namespace AmandsHitmarker
     {
         protected override MethodBase GetTargetMethod()
         {
-            return typeof(EFT.UI.BattleUIScreen).GetMethod("Show", BindingFlags.Instance | BindingFlags.NonPublic);
+            return typeof(EFT.UI.BattleUIScreen).GetMethods(BindingFlags.Instance | BindingFlags.Public).First(x => x.Name == "Show" && x.GetParameters()[0].Name == "owner");
         }
         [PatchPostfix]
         private static void PatchPostFix(ref EFT.UI.BattleUIScreen __instance)
@@ -556,6 +568,13 @@ namespace AmandsHitmarker
                     AmandsHitmarkerClass.UpdateDamageNumber = false;
                 }
             }
+            else
+            {
+                if (AmandsHitmarkerClass.localPlayer != null && __instance == AmandsHitmarkerClass.localPlayer && AHitmarkerPlugin.EnableDamageIndicator.Value && AmandsHitmarkerClass.amandsDamageIndicator != null)
+                {
+                    AmandsHitmarkerClass.amandsDamageIndicator.SetLocation(damageInfo.MasterOrigin);
+                }
+            }
         }
     }
     public class AmandsProceedArmorDamagePatch : ModulePatch
@@ -594,7 +613,7 @@ namespace AmandsHitmarker
     {
         protected override MethodBase GetTargetMethod()
         {
-            return typeof(ArmorComponent).GetMethod("ApplyDurabilityDamage");
+            return typeof(ArmorComponent).GetMethod("ApplyDurabilityDamage", BindingFlags.Instance | BindingFlags.Public);
         }
         [PatchPrefix]
         private static void PatchPrefix(ref ArmorComponent __instance, float armorDamage)

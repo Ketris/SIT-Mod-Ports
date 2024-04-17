@@ -22,6 +22,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>copy "AmandsHitmarker.dll" "$(SolutionDir)\Plugins\" /y </PostBuildEvent>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
@@ -30,10 +33,10 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <PostBuildEvent>copy "AmandsHitmarker.dll" "$(SolutionDir)- Plugins\" /y </PostBuildEvent>
-  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="StayInTarkov.dll">
+      <HintPath>..\References\StayInTarkov.dll</HintPath>
+    </Reference>
     <Reference Include="0Harmony">
       <HintPath>..\References\0Harmony.dll</HintPath>
     </Reference>
@@ -48,9 +51,6 @@
     </Reference>
     <Reference Include="Comfort">
       <HintPath>..\References\Comfort.dll</HintPath>
-    </Reference>
-    <Reference Include="StayInTarkov">
-      <HintPath>..\References\StayInTarkov.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
