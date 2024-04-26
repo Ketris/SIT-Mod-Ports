@@ -63,8 +63,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ThatsLit", "SPT_ThatsLit\Th
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Terkoiz.Freecam", "freecam\Terkoiz.Freecam.csproj", "{D1BF6612-6E79-4C95-9CB5-46CCE5EF5758}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Donuts", "Donuts\Donuts.csproj", "{967E5737-8917-4C2B-A0A4-B2B553498462}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BorkelRNVG", "RealisticNVG-SIT\BorkelRNVG.csproj", "{DC2ED81F-DAF4-4476-ADDC-60A6978A9F77}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Skills Extended", "SPT-SkillsExtended\Plugin\Skills Extended.csproj", "{7037074D-D9D8-41A9-9EA3-8FCEFE0FA5F7}"
